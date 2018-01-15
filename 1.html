@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+<link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.2/style/weui.min.css">
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+<style>
+#uploaderFiles li img{
+   width:100%;
+   height:100%;
+}
+</style>
+</head>
+<body>
+<div class="weui-cells weui-cells_form">
+  <div class="weui-cell">
+    <div class="weui-cell__bd">
+      <div class="weui-uploader">
+        <div class="weui-uploader__hd">
+          <p class="weui-uploader__title">uploader</p>
+          <div class="weui-uploader__info">0/2</div>
+        </div>
+        <div class="weui-uploader__bd">
+		 <input  type="hidden"  id="datafor" value="toolbox" />
+          <ul class="weui-uploader__files" id="uploaderFiles">
+          </ul>
+          <div class="weui-uploader__input-box">
+            <input  class="weui-uploader__input" type="file" accept="image/*"  id="file">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <img src="" id="test" style="width:200px;"/> 
+  <a href="javascript:;" class="weui-btn weui-btn_primary" id="upload">上传</a>
+</div>
+<script>
+
+   $(function(){
+         var formData = new FormData();
+		 formData.append('absents', "1111");
+         formData.append('constructionId', 11);
+		 var  img=new Image();
+		 var file=null;
+		
+		 $("#upload").click(function(){
+		      
+               $.ajax({
+                  url: "http://jumper.spoonsea.com/wechat/construction/ready",
+                  type: "POST",
+                  processData: false,
+                  contentType: false,
+                  data: formData,
+                  success: function(d){
+                    alert(d.code);
+                  }
+               });
+
+		 
+		 
+		 });
+	img.onload=function(e){
+				 // 图片原始尺寸
+	console.log(e);
+	var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+			 
+				 
+    var originWidth = this.width;
+    var originHeight = this.height;
+    // 最大尺寸限制
+    var maxWidth = 600, maxHeight = 600;
+    // 目标尺寸
+    var targetWidth = originWidth, targetHeight = originHeight;
+    // 图片尺寸超过400x400的限制
+    if (originWidth > maxWidth || originHeight > maxHeight) {
+        if (originWidth / originHeight > maxWidth / maxHeight) {
+            // 更宽，按照宽度限定尺寸
+            targetWidth = maxWidth;
+            targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+        } else {
+            targetHeight = maxHeight;
+            targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+        }
+    }
+        
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    // 清除画布
+    context.clearRect(0, 0, targetWidth, targetHeight);
+    // 图片压缩
+    context.drawImage(img, 0, 0, targetWidth, targetHeight);
+    canvas.toBlob(function (blob) {
+	if($('#toolbox').val()!=""){
+	   formData.append($('#datafor').val(), blob,"imageFilename.png");
+	}
+    
+
+	$('#test').attr("src",canvas.toDataURL());
+    }, file.type || 'image/png');
+				
+				 
+		 }
+         $("#file").change(function(e){
+		     $('#datafor').val("toolbox");
+             var reader = new FileReader();
+			     file=$('#file')[0].files[0];
+                 
+				
+                 reader.onload = function(e) {
+				
+                 
+                 var li='<li class="weui-uploader__file weui-uploader__file_status" >';
+				     li+='<img src="'+e.target.result+'" />';
+				     li+='</li>'
+				 img.src = e.target.result;
+				 
+				 $("#uploaderFiles").append($(li));
+              };
+			 if (file.type.indexOf("image") == 0) {
+                 reader.readAsDataURL(file);    
+              }else{
+			    alert("请上传图片");
+			  }
+          });
+
+   })
+
+  </script>
+</body>
+</html>
